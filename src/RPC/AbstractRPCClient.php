@@ -243,5 +243,129 @@ abstract class AbstractRPCClient extends JSON_RPC_2
     }
 
 
+    /**
+     * @param string $blockHash
+     * @param string $transactionIndex
+     * @return mixed|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getTransactionByBlockHashAndIndex(string $blockHash, string $transactionIndex)
+    {
+        $transaction = $this->call("eth_getTransactionByBlockHashAndIndex", [$blockHash, $transactionIndex]);
+
+        return $transaction;
+    }
+
+
+    /**
+     * @param string $blockParam
+     * @param string $transactionIndex
+     * @return mixed|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getTransactionByBlockNumberAndIndex(string $blockParam, string $transactionIndex)
+    {
+        $transaction = $this->call("eth_getTransactionByBlockNumberAndIndex", [$blockParam, $transactionIndex]);
+
+        return $transaction;
+    }
+
+
+    /**
+     * @param string $transactionHash
+     * @return mixed|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getTransactionByHash(string $transactionHash)
+    {
+        $transaction = $this->call("eth_getTransactionByHash", [$transactionHash]);
+
+        return $transaction;
+
+    }
+
+    /**
+     * @param string $address
+     * @param string $blockParam
+     * @return mixed|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getTransactionCount(string $address, string $blockParam)
+    {
+
+        $transaction = $this->call("eth_getTransactionCount", [$address, $blockParam]);
+        if (!DataTypes::isBase16($transaction)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getTransactionCount", "Base16", gettype($code));
+        }
+        return (int)Integers::Unpack($transaction)->value();
+
+    }
+
+
+    /**
+     * @param string $blockHash
+     * @param string $uncleIndex
+     * @return mixed|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getUncleByBlockHashAndIndex(string $blockHash, string $uncleIndex)
+    {
+        $block = $this->call("eth_getUncleByBlockHashAndIndex", [$blockParam, $uncleIndex]);
+        return $block;
+
+    }
+
+    /**
+     * @param string $blockParam
+     * @param string $uncleIndex
+     * @return mixed|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getUncleByBlockNumberAndIndex(string $blockParam, string $uncleIndex)
+    {
+        $block = $this->call("eth_getUncleByBlockNumberAndIndex", [$blockParam, $uncleIndex]);
+        return $block;
+
+    }
+
+    /**
+     * @param string $blockHash
+     * @return int
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getUncleCountByBlockHash(string $blockHash): int
+    {
+        $blockTransactionCount = $this->call("eth_getUncleCountByBlockHash", [$blockHash]);
+        if (!DataTypes::isBase16($blockTransactionCount)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getUncleCountByBlockHash", "Base16", gettype($blockTransactionCount));
+        }
+        return (int)Integers::Unpack($blockTransactionCount)->value();
+
+    }
+
+    /**
+     * @param string $blockParam
+     * @return int
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getUncleCountByBlockNumber(string $blockParam): int
+    {
+        $blockTransactionCount = $this->call("eth_getUncleCountByBlockNumber", [$blockParam]);
+        if (!DataTypes::isBase16($blockTransactionCount)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getUncleCountByBlockNumber", "Base16", gettype($blockTransactionCount));
+        }
+        return (int)Integers::Unpack($blockTransactionCount)->value();
+    }
+
 
 }
