@@ -137,4 +137,58 @@ abstract class AbstractRPCClient extends JSON_RPC_2
 
         return $balance;
     }
+
+    /**
+     * @param $transactionData
+     * @return mixed|null
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_sendRawTransaction($transactionData)
+    {
+        $param = [$transactionData];
+        return $this->call("eth_sendRawTransaction", $param);
+    }
+
+
+    /**
+     * @return string
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_gasPrice()
+    {
+        $gasPrice = $this->call("eth_gasPrice");
+        if (!DataTypes::isBase16($gasPrice)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_gasPrice", "Base16", gettype($gasPrice));
+        }
+
+        $gasPrice = $this->eth->wei()->fromWei(Integers::Unpack($gasPrice))->eth();
+        return $gasPrice;
+    }
+
+    /**
+     * @param string $address
+     * @return int
+     * @throws RPCInvalidResponseException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
+     * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
+     */
+    public function eth_getTransactionCount(string $address,string $block = "latest"): int
+    {
+        if (!in_array($block, ["latest", "earliest", "pending"])) {
+            throw new \InvalidArgumentException('Invalid block scope; Valid values are "latest", "earliest" and "pending"');
+        }
+        $param = [$address,$block];
+        $transactionCount = $this->call("eth_getTransactionCount", $param);
+        if (!DataTypes::isBase16($transactionCount)) {
+            throw RPCInvalidResponseException::InvalidDataType("eth_getTransactionCount", "Base16", gettype($transactionCount));
+        }
+        return (int)Integers::Unpack($transactionCount)->value();
+
+
+    }
+
+
 }
