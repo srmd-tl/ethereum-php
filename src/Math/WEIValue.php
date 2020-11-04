@@ -114,4 +114,20 @@ class WEIValue
 
         return $dec;
     }
+
+    /**
+     * @return string|null
+     */
+    public function weiToGwei()
+    {
+        return bcdiv($this->wei, bcpow("10", "9", 0));
+    }
+
+    /**
+     * @return string|null
+     */
+    public function weiToEth()
+    {
+        return bcdiv($this->wei, bcpow("10", "18", 0));
+    }
 }

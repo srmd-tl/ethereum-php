@@ -66,6 +66,11 @@ class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
      */
     public function signTransaction(RLPEncodedTx $serializedTx): RLPEncodedTx
     {
+        echo "<br>";
+        echo "private key";
+        print_r($this->base16());
+        print_r($this->getEllipticCurveId());
+        print_r($this->eth->networkConfig()->chainId);
         $curve = Curves::getInstanceOf($this->getEllipticCurveId());
         $signature = $curve->sign($this->base16(), $serializedTx->hash());
         $pointR = $signature->curvePointR();
@@ -74,8 +79,12 @@ class PrivateKey extends \FurqanSiddiqui\BIP32\KeyPair\PrivateKey
         $parity = strlen(str_replace("0", "", gmp_strval($pointR->y(), 2))) % 2 === 0 ? 0 : 1;
         $sigV = $this->eth->networkConfig()->chainId * 2 + (35 + $parity);
         $txn = TxBuilder::Decode($this->eth, $serializedTx);
+        echo "<br>";
+        echo "decoded trx";
+        print_r($txn);
+        echo "<br>";
         $txn->signature($sigV, $signature->r(), $signature->s());
-
+        print_r($txn);
         return $txn->serialize();
     }
 }
