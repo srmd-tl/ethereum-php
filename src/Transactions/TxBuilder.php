@@ -54,24 +54,25 @@ class TxBuilder
      */
     public static function Decode(Ethereum $eth, RLPEncodedTx $encoded): self
     {
+
         $decoder = new RLP\RLPDecoder($encoded->serialized()->hexits(false));
         $decoder->expectInteger(0, "nonce")
             ->expectInteger(1, "gasPrice")
             ->expectInteger(2, "gasLimit")
             ->mapValue(3, "to")
-            ->expectInteger(4, "value")
+//            ->expectInteger(4, "value")
             ->mapValue(5, "data")
             ->expectInteger(6, "signatureV")
             ->mapValue(7, "signatureR")
             ->mapValue(8, "signatureS");
 
         $decoded = $decoder->decode();
-
         $tx = new self($eth);
-        $tx->nonce($decoded["nonce"])
+        $tx->nonce((int)$decoded["nonce"])
             ->gas($eth->wei()->fromWei($decoded["gasPrice"]), intval($decoded["gasLimit"]))
             ->to($eth->getAccount($decoded["to"]))
-            ->value($eth->wei()->fromWei($decoded["value"]))
+//            ->value($eth->wei()->fromWei($decoded["value"]))
+            ->data($decoded["data"])
             ->signature(
                 $decoded["signatureV"],
                 new Base16($decoded["signatureR"]),
@@ -189,7 +190,7 @@ class TxBuilder
         $txObj->encodeHexString($this->to->getAddress());
 
         // Value
-        $txObj->encodeInteger($this->value->wei());
+        $txObj->encodeInteger(0);
 
         // Data/Contract Code
         $txObj->encodeHexString($this->data ?? "");

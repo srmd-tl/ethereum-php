@@ -18,6 +18,7 @@ use Comely\DataTypes\DataTypes;
 use FurqanSiddiqui\Ethereum\Ethereum;
 use FurqanSiddiqui\Ethereum\Exception\RPCInvalidResponseException;
 use FurqanSiddiqui\Ethereum\Math\Integers;
+use FurqanSiddiqui\Ethereum\Math\WEIValue;
 use FurqanSiddiqui\Ethereum\RPC\Models\Block;
 use FurqanSiddiqui\Ethereum\RPC\Models\Transaction;
 use FurqanSiddiqui\Ethereum\RPC\Models\TransactionReceipt;
@@ -168,6 +169,31 @@ abstract class AbstractRPCClient extends JSON_RPC_2
         return $gasPrice;
     }
 
+    public function eth_estimateGas(string $to, string $from, string $gas, WEIValue $gasPrice, int $value, string $data, string $block = "latest"):int
+    {
+        $params = array (
+            0 =>
+                array (
+                    'from' =>$from,
+                    'to' => $to,
+                    'gas' => $gas,
+                    'gasPrice' => "0x".dechex((int)$gasPrice->eth()),
+                    'value' => '0x9184e72a',
+                    'data' => '0xd46e8dd67c5d32be8d46e8dd67c5d32be8058bb8eb970870f072445675058bb8eb970870f072445675',
+                ),
+        );
+
+        $data = $this->call("eth_estimateGas", $params);
+
+        if(!DataTypes::isBase16($data))
+        {
+            throw RPCInvalidResponseException::InvalidDataType("eth_estimateGas", "Base16", gettype($data));
+
+        }
+        return (int)Integers::Unpack($data)->value();
+    }
+
+
     /**
      * @param string $address
      * @return int
@@ -175,19 +201,34 @@ abstract class AbstractRPCClient extends JSON_RPC_2
      * @throws \FurqanSiddiqui\Ethereum\Exception\JSONReqException
      * @throws \FurqanSiddiqui\Ethereum\Exception\RPCRequestError
      */
-    public function eth_getTransactionCount(string $address,string $block = "latest"): int
+    public function eth_getTransactionCount(string $address, string $block = "latest"): int
     {
         if (!in_array($block, ["latest", "earliest", "pending"])) {
             throw new \InvalidArgumentException('Invalid block scope; Valid values are "latest", "earliest" and "pending"');
         }
-        $param = [$address,$block];
+        $param = [$address, $block];
         $transactionCount = $this->call("eth_getTransactionCount", $param);
         if (!DataTypes::isBase16($transactionCount)) {
             throw RPCInvalidResponseException::InvalidDataType("eth_getTransactionCount", "Base16", gettype($transactionCount));
         }
         return (int)Integers::Unpack($transactionCount)->value();
+    }
 
-
+    public function eth_call(string $to, string $from, int $gas, int $gasPrice, int $value, string $data, string $block = "latest")
+    {
+        $params = [
+            [
+                "from" => $from,
+                "to" => $to,
+                "gas" => $gas,
+                "gasPrice" => $gasPrice,
+                "value" => $value,
+                "data" => $data
+            ],
+            $block
+        ];
+        $data = $this->call("eth_call", $params);
+        return $data;
     }
 
 
